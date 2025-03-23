@@ -1,0 +1,5 @@
+src/
+  ├── routes/
+  │    ├── AppRoutes.tsx      // Định nghĩa các route chính của ứng dụng
+  │    ├── PrivateRoute.tsx   // Route bảo vệ cho các trang cần authentication
+  │    └── DashboardRoutes.tsx// Các route riêng cho Dashboard (nếu có)

@@ -1,0 +1,83 @@
+my-react-app/
+│
+├── public/
+│   ├── index.html
+│   └── ...
+│
+├── src/
+│   ├── assets/                # Các tài nguyên như ảnh, biểu tượng, fonts
+│   ├── components/            # Các component tái sử dụng
+│   │   ├── Navbar.tsx         # Thanh điều hướng
+│   │   ├── UserCard.tsx       # Hiển thị thông tin người dùng
+│   │   └── ...
+│   ├── pages/                 # Các trang chính
+│   │   ├── Register.tsx       # Trang đăng ký người dùng
+│   │   ├── Login.tsx          # Trang đăng nhập
+│   │   ├── UserManagement.tsx # Trang quản lý người dùng
+│   │   └── ...
+│   ├── services/              # Các API services (gọi tới backend FastAPI)
+│   │   ├── authService.ts     # Các hàm liên quan đến xác thực
+│   │   └── userService.ts     # Các hàm liên quan đến quản lý người dùng
+│   ├── store/                 # Quản lý trạng thái (Redux hoặc Context API)
+│   │   ├── userSlice.ts       # Quản lý trạng thái người dùng
+│   │   └── store.ts           # Cấu hình store Redux hoặc context
+│   ├── styles/                # Các file CSS/Tailwind
+│   │   ├── tailwind.css       # Cấu hình Tailwind CSS
+│   │   └── index.css          # Các kiểu custom
+│   ├── App.tsx                # Cấu hình các routes và các component chính
+│   ├── router.tsx             # Cấu hình Router của React
+│   ├── index.tsx              # Điểm khởi đầu của ứng dụng React
+│   └── ...
+├── tailwind.config.cjs        # Cấu hình Tailwind
+├── package.json               # Cấu hình các package và scripts
+└── tsconfig.json              # Cấu hình TypeScript
+
+
+my-project/
+├── public/
+│   ├── index.html                # Tệp HTML gốc
+│   └── favicon.ico               # Favicon
+├── src/
+│   ├── assets/                   # Thư mục chứa các tài nguyên tĩnh như hình ảnh, icon
+│   │   ├── logo.svg
+│   │   └── background.jpg
+│   ├── components/               # Các component dùng chung
+│   │   ├── Button.tsx            # Button component
+│   │   ├── Input.tsx             # Input component
+│   │   └── Navbar.tsx            # Navbar component
+│   ├── hooks/                    # Các custom hooks
+│   │   ├── useAuth.ts            # Hook xác thực người dùng
+│   │   └── useFetch.ts           # Hook lấy dữ liệu từ API
+│   ├── pages/                    # Các trang chính của ứng dụng
+│   │   ├── Register.tsx          # Trang đăng ký
+│   │   ├── Login.tsx             # Trang đăng nhập
+│   │   ├── UserManagement.tsx    # Trang quản lý người dùng
+│   │   └── Dashboard.tsx         # Trang tổng quan của người dùng
+│   ├── services/                 # Các dịch vụ API
+│   │   ├── api.ts                # Các hàm API sử dụng fetch/axios
+│   │   └── authService.ts        # Các hàm liên quan đến xác thực
+│   ├── store/                    # Quản lý trạng thái (state) của ứng dụng
+│   │   ├── authSlice.ts          # Quản lý trạng thái xác thực
+│   │   └── userSlice.ts          # Quản lý trạng thái người dùng
+│   ├── styles/                   # Các tệp CSS hoặc SCSS tùy chỉnh
+│   │   ├── tailwind.css          # Cấu hình và các lớp của Tailwind CSS
+│   │   └── global.css            # Các style toàn cục
+│   ├── types/                    # Các kiểu dữ liệu TypeScript
+│   │   ├── user.d.ts             # Các kiểu cho user
+│   │   └── auth.d.ts             # Các kiểu cho xác thực
+│   ├── utils/                    # Các hàm tiện ích
+│   │   └── helpers.ts            # Các hàm tiện ích chung
+│   ├── App.tsx                   # Tệp gốc của ứng dụng React
+│   ├── index.tsx                 # Entry point của ứng dụng React
+│   └── router.tsx                # Quản lý routing trong ứng dụng
+├── .gitignore                    # Các tệp và thư mục cần loại bỏ khi commit
+├── package.json                  # Các gói phụ thuộc và scripts của dự án
+├── tailwind.config.cjs           # Cấu hình Tailwind CSS
+├── tsconfig.json                 # Cấu hình TypeScript
+├── postcss.config.cjs            # Cấu hình PostCSS
+└── README.md                     # Tệp hướng dẫn và thông tin dự án
+
+
+npm create vite@latest .  --template react-ts
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init
