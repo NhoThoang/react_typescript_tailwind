@@ -5,13 +5,13 @@ markdown
 ![dashboard](./Picture/dasboard.png)
 
 
-![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/Home.png)
+![dashboard](./Picture/Home.png)
 
 
-![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/profile.png)
+![dashboard](./Picture/profile.png)
 
 
-![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/setting.png)
+![dashboard](./Picture/setting.png)
 
 
 
