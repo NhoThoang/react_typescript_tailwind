@@ -2,7 +2,7 @@ markdown
 
 # FastApi Dashboard
 
-![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/dasboard.png)
+![dashboard](D:\CODE2025\FONT_END\react_mess\Picture\dasboard.png)
 
 
 ![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/Home.png)
