@@ -1,26 +1,25 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface UserState {
-  isAuthenticated: boolean;
+interface User {
   username: string;
-  email: string;
-  // thêm các trường khác nếu cần
+  isAuthenticated: boolean;
+  token: string;
 }
 
-const initialState: UserState = {
-  isAuthenticated: false,
+const initialState: User = {
   username: "",
-  email: "",
+  isAuthenticated: false,
+  token: "",
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<UserState>) => {
+    setUser: (state, action: PayloadAction<User>) => {
       return { ...state, ...action.payload };
     },
-    logout: (state) => {
+    logout: (_state) => {
       return initialState;
     },
   },

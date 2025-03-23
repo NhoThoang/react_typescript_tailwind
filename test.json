@@ -1,0 +1,18 @@
+{message: 'Login failed', status: 400, details: {…}}
+details
+: 
+detail
+: 
+"Invalid password"
+[[Prototype]]
+: 
+Object
+message
+: 
+"Login failed"
+status
+: 
+400
+[[Prototype]]
+: 
+Object
