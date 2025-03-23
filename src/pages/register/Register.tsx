@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { registerUser } from "../../api/userApi";
 
 const Register = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
@@ -34,11 +34,8 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8000/register/", form, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("Đăng ký thành công:", response.data);
+      const response = await registerUser(form.username, form.email, form.password);
+      console.log("Đăng ký thành công:", response);
       navigate("/login");
     } catch (err: any) {
       if (err.response && err.response.data.detail) {

@@ -1,12 +1,26 @@
-import { useState } from "react";
+// src/pages/Login.tsx
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../api/userApi";
+import { setUser } from "../../redux/userSlice";
+import { RootState } from "../../redux/store";
+import { setToken } from "../../redux/authSlice";
 
 const Login = () => {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
+
+  useEffect(() => {
+    console.log('Auth status:', isAuthenticated);
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,17 +30,28 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    console.log('Form submission started:', form);
 
     try {
-      const response = await axios.post("http://localhost:8000/login/", form, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("Đăng nhập thành công:", response.data);
-      localStorage.setItem("token", response.data.token);
-      navigate("/");
+      const response = await loginUser(form.username, form.password);
+      console.log('Login response received:', response);
+      
+      if (response && response.token) {
+        dispatch(setToken(response.token));
+        dispatch(setUser({ 
+          username: form.username,
+          isAuthenticated: true,
+          ...response.user 
+        }));
+        console.log('Redux state updated, navigating to home');
+        navigate("/");
+      } else {
+        console.error('Invalid response structure:', response);
+        throw new Error('Invalid response from server');
+      }
     } catch (err: any) {
-      setError("Sai tên đăng nhập hoặc mật khẩu!");
+      console.error('Login error:', err);
+      setError(err.message || "Đăng nhập thất bại. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }

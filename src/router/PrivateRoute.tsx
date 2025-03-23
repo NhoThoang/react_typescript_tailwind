@@ -1,11 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
-const PrivateRoute = () => {
-  const { auth } = useAuth();
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
 
-  // Nếu người dùng chưa đăng nhập, chuyển hướng về trang đăng nhập
-  return auth ? <Outlet /> : <Navigate to="/login" />;
+  return children;
 };
 
 export default PrivateRoute;
