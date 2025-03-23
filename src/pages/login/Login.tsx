@@ -36,12 +36,12 @@ const Login = () => {
       const response = await loginUser(form.username, form.password);
       console.log('Login response received:', response);
       
-      if (response && response.token) {
-        dispatch(setToken(response.token));
+      if (response && response.access_token) {
+        dispatch(setToken(response.access_token));
         dispatch(setUser({ 
           username: form.username,
           isAuthenticated: true,
-          ...response.user 
+          token: response.access_token
         }));
         console.log('Redux state updated, navigating to home');
         navigate("/");

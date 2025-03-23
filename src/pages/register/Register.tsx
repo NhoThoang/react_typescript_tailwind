@@ -78,6 +78,7 @@ const Register = () => {
                 type="text"
                 name="username"
                 required
+                autoComplete="username"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                 placeholder="Enter your username"
                 onChange={handleChange}
@@ -90,6 +91,7 @@ const Register = () => {
                 type="email"
                 name="email"
                 required
+                autoComplete="email"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                 placeholder="Enter your email"
                 onChange={handleChange}
@@ -102,6 +104,7 @@ const Register = () => {
                 type="password"
                 name="password"
                 required
+                autoComplete="new-password"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                 placeholder="Enter your password"
                 onChange={handleChange}
