@@ -2,6 +2,11 @@ markdown
 
 # FastApi Dashboard
 
+![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/dasboard.png)
+![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/Home.png)
+![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/profile.png)
+![dashboard](https://github.com/NhoThoang/react_typescript_tailwind/tree/main/Picture/setting.png)
+
 Welcome to the FastApi Dashboard project! This is a modern, responsive web application built using React, TypeScript, and Tailwind CSS. The dashboard provides users with a comprehensive overview of their PDF processing activities, user management, and personal profile settings.
 
 ## Features
@@ -27,7 +32,7 @@ Welcome to the FastApi Dashboard project! This is a modern, responsive web appli
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/FastApi-dashboard.git
+   git clone https://github.com/NhoThoang/react_typescript_tailwind.git
 Navigate to the project directory:
 
 
@@ -43,7 +48,7 @@ Start the development server:
 
 
 npm start
-Open your browser and visit http://localhost:3000 to view the application.
+Open your browser and visit http://localhost:4000 to view the application.
 
 Project Structure
 src/components/: Contains reusable React components.
