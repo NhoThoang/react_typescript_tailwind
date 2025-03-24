@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronDown, MessageCircle, Bell, Search } from "lucide-react";
 import { useState } from "react";
-import { User } from "lucide-react";
+// import { User } from "lucide-react";
 
 interface NavbarProps {
   user?: {
@@ -12,15 +12,59 @@ interface NavbarProps {
 
 const Navbar = ({ user }: NavbarProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="bg-white/5 text-gray-800 relative z-50">
       <div className="px-6 py-3 flex justify-between items-center backdrop-blur-sm">
-        <div className="flex items-center space-x-6">
-          <h2 className="text-xl font-semibold">Welcome, {user?.name || 'Guest'}</h2>
+        <div className="flex items-center">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-10 pr-4 py-2 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-400 w-[300px]"
+            />
+            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
         </div>
         
         <div className="flex items-center space-x-3 relative">
+          <button 
+            onClick={() => navigate('/message')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <MessageCircle className="w-6 h-6" />
+          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <Bell className="w-6 h-6" />
+            </button>
+            {isNotificationOpen && (
+              <div className="absolute right-0 top-12 w-80 py-2 bg-white shadow-xl rounded-lg border border-gray-100
+                transition-all duration-200 ease-out
+                opacity-100 scale-100 transform
+                hover:shadow-2xl z-50">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-medium text-gray-800">Notifications</p>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto">
+                  {/* Example notifications */}
+                  <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                    <p className="text-sm text-gray-800">New message from John</p>
+                    <p className="text-xs text-gray-500">2 minutes ago</p>
+                  </div>
+                  <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                    <p className="text-sm text-gray-800">Someone liked your post</p>
+                    <p className="text-xs text-gray-500">1 hour ago</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           {user && (
             <>
               <button 

@@ -1,12 +1,11 @@
 import { FileText, FilePen, FileCode, FileSpreadsheet, Image, User } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import NavBar from "../../components/NavBar/NavBar";
+import NavBar from "../../components/Navbar/Navbar";
 import Sidebar from "../../components/Navbar/Sidebar";
 
 const DashboardPage = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const navigate = useNavigate();
+  // Removed unused variables:
+  // - const [isExpanded, setIsExpanded] = useState(false);
+  // - const navigate = useNavigate();
 
   const dashboardData = [
     {

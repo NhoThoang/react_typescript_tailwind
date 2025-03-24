@@ -7,6 +7,9 @@ export default defineConfig({
     react(), // Kích hoạt plugin React
     tailwindcss(), // Kích hoạt plugin Tailwind CSS
   ],
+  base: '/',
+  publicDir: 'public',
+  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.jpeg', '**/*.gif'],
   server: {
     port: 4000, // Thiết lập cổng chạy Vite, mặc định là 5173 nhưng ở đây đổi thành 4000
     proxy: {
