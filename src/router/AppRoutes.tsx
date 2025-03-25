@@ -8,6 +8,7 @@ import Setting from "../pages/Setting/Settings";
 import Profile from "../pages/Profile/Profile";
 import Page404 from "../pages/404_page/page404";
 import Message from "../message/message";
+import Logout from "../pages/logout/logout";
 
 const AppRoutes = () => {
   return (
@@ -21,6 +22,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="*" element={<Page404 />} />
       <Route path="/message" element={<Message />} />
+      <Route path="/logout" element={<Logout />} />
     </Routes>
   );
 };

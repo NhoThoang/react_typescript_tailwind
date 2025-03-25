@@ -35,6 +35,9 @@ const Login = () => {
       const response = await loginUser(form.username, form.password);
       
       if (response && response.access_token) {
+        // Store username in sessionStorage
+        sessionStorage.setItem('username', form.username);
+        
         dispatch(setToken(response.access_token));
         dispatch(setUser({ 
           username: form.username,

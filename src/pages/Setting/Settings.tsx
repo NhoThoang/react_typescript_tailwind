@@ -8,7 +8,7 @@ const Settings = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Navbar user={{
-          name: "John Doe",
+          name: "fdfs",
           avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
         }} />
         <div className="flex-1 overflow-auto p-8">

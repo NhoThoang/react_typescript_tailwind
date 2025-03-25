@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, MessageCircle, Bell, Search } from "lucide-react";
-import { useState } from "react";
-// import { User } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface NavbarProps {
   user?: {
@@ -13,7 +12,18 @@ interface NavbarProps {
 const Navbar = ({ user }: NavbarProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [sessionUser, setSessionUser] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const username = sessionStorage.getItem('username');
+    if (username) {
+      setSessionUser(username);
+    }
+  }, []);
+
+  // Use sessionUser if available, otherwise fallback to props user
+  const displayUser = sessionUser ? { name: sessionUser, avatar: 'default-avatar.png' } : user;
 
   return (
     <nav className="bg-white/5 text-gray-800 relative z-50">
@@ -65,15 +75,15 @@ const Navbar = ({ user }: NavbarProps) => {
               </div>
             )}
           </div>
-          {user && (
+          {displayUser && (
             <>
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center space-x-2 hover:text-purple-700 transition-colors p-2 rounded-full hover:bg-white/20"
               >
                 <img 
-                  src={user.avatar} 
-                  alt={user.name}
+                  src={displayUser.avatar} 
+                  alt={displayUser.name}
                   className="w-8 h-8 rounded-full border-2 border-purple-400"
                 />
                 <ChevronDown className="w-4 h-4" />
@@ -83,11 +93,11 @@ const Navbar = ({ user }: NavbarProps) => {
                   transition-all duration-200 ease-out
                   opacity-100 scale-100 transform
                   hover:shadow-2xl z-50">
-                  {user ? (
+                  {displayUser && displayUser.name ? (
                     <>
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                        <p className="text-xs text-gray-500">Signed in</p>
+                        <h4 className="text-sm font-medium text-gray-800">{displayUser.name}</h4>
+                        <span className="text-xs text-gray-500">Signed in</span>
                       </div>
                       <button className="w-full text-left px-4 py-2.5 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center space-x-2">
                         <span>Profile</span>
@@ -96,15 +106,50 @@ const Navbar = ({ user }: NavbarProps) => {
                         <span>Settings</span>
                       </button>
                       <hr className="my-2 border-gray-100" />
-                      <button className="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors flex items-center space-x-2">
+                      <button 
+                        onClick={() => navigate('/logout')}
+                        className="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors flex items-center space-x-2">
                         <span>Logout</span>
                       </button>
                     </>
                   ) : (
-                    <Link to="/login" className="w-full text-left px-4 py-2.5 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center space-x-2">
-                      <span>Sign in</span>
-                    </Link>
+                    <button 
+                      onClick={() => {
+                        navigate('/login');
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-all duration-200 flex items-center space-x-2"
+                    >
+                      <span className="font-medium">Sign in</span>
+                    </button>
                   )}
+                </div>
+              )}
+            </>
+          )}
+          {!displayUser && (
+            <>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center space-x-2 hover:text-purple-700 transition-colors p-2 rounded-full hover:bg-white/20"
+              >
+                <span>Login</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 top-12 w-48 py-2 bg-white shadow-xl rounded-lg border border-gray-100
+                  transition-all duration-200 ease-out
+                  opacity-100 scale-100 transform
+                  hover:shadow-2xl z-50">
+                  <button 
+                    onClick={() => {
+                      navigate('/login');
+                      setIsDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <span className="font-medium">Sign in</span>
+                  </button>
                 </div>
               )}
             </>
