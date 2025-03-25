@@ -13,17 +13,47 @@ const Navbar = ({ user }: NavbarProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [sessionUser, setSessionUser] = useState<string | null>(null);
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const username = sessionStorage.getItem('username');
+    const avatarUrl = sessionStorage.getItem('avatarUrl');
+    
     if (username) {
       setSessionUser(username);
+      if (avatarUrl) {
+        setUserAvatar(avatarUrl);
+      } else {
+        fetchUserAvatar(username);
+      }
     }
   }, []);
 
+  const fetchUserAvatar = async (username: string) => {
+    try {
+      const response = await fetch(`/api/users/${username}/profile`);
+      const data = await response.json();
+      const avatarUrl = data.avatarUrl;
+      sessionStorage.setItem('avatarUrl', avatarUrl);
+      setUserAvatar(avatarUrl);
+    } catch (error) {
+      console.error('Error fetching user avatar:', error);
+      setUserAvatar('/images/default-avatar.png');
+    }
+  };
+
   // Use sessionUser if available, otherwise fallback to props user
-  const displayUser = sessionUser ? { name: sessionUser, avatar: 'default-avatar.png' } : user;
+  const displayUser = sessionUser ? { 
+    name: sessionUser, 
+    avatar: userAvatar || '/images/default-avatar.png' 
+  } : user;
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('avatarUrl');
+    navigate('/logout');
+  };
 
   return (
     <nav className="bg-white/5 text-gray-800 relative z-50">
@@ -107,7 +137,7 @@ const Navbar = ({ user }: NavbarProps) => {
                       </button>
                       <hr className="my-2 border-gray-100" />
                       <button 
-                        onClick={() => navigate('/logout')}
+                        onClick={handleLogout}
                         className="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors flex items-center space-x-2">
                         <span>Logout</span>
                       </button>

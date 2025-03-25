@@ -88,7 +88,8 @@ const HomePage = () => {
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0"> {/* Added min-w-0 to prevent flex item from overflowing */}
-        <Navbar user={{ name: "John Doe", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" }} />
+        <Navbar />
+        {/* <Navbar user={{ name: "John Doe", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" }} /> */}
         
         <div className="flex-1 overflow-y-auto overflow-x-hidden"> {/* Added overflow-x-hidden */}
           {/* Hero Slider */}
