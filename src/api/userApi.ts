@@ -131,3 +131,73 @@ export const updateUserContact = async (phone: string, address: string) => {
     };
   }
 };
+
+export const uploadAvatar = async (file: File) => {
+  try {
+    const username = localStorage.getItem('username') || sessionStorage.getItem('username');
+    
+    if (!username) {
+      throw new Error('Username not found in session');
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('username', username);
+
+    const response = await axios.post(`${API_URL}/upload_avatar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      withCredentials: true
+    });
+    
+    return response.data;
+  } catch (error: any) {
+    console.error('Error uploading avatar:', error);
+    throw {
+      message: error.response?.data?.message || 'Failed to upload avatar',
+      status: error.response?.status,
+      details: error.response?.data
+    };
+  }
+};
+
+interface AvatarResponse {
+  avatarPath: string;
+  backgroundPath: string;
+}
+
+export const getUserPaths = async (): Promise<AvatarResponse> => {
+  try {
+    const username = localStorage.getItem('username') || sessionStorage.getItem('username');
+    
+    if (!username) {
+      throw new Error('Username not found in session');
+    }
+
+    const response = await axios.post(`${API_URL}/get_avatar_background_path`, {
+      username
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true
+    });
+    
+    console.log('Raw response from server:', response.data);
+    const fullAvatarPath = `${API_URL}/${response.data.avatar_path}`;
+    console.log('Full avatar path:', fullAvatarPath);
+    
+    return {
+      avatarPath: fullAvatarPath,
+      backgroundPath: `${API_URL}/${response.data.background_path}`
+    };
+  } catch (error: any) {
+    console.error('Error fetching user paths:', error);
+    throw {
+      message: error.response?.data?.message || 'Failed to fetch user paths',
+      status: error.response?.status,
+      details: error.response?.data
+    };
+  }
+};

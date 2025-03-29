@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Sidebar from '../../components/Navbar/Sidebar';
-import { getUserInformation, updateUserContact } from '../../api/userApi';
+import { getUserInformation, updateUserContact, uploadAvatar, getUserPaths } from '../../api/userApi';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -10,22 +11,48 @@ const Profile = () => {
     phone: "",
     address: ""
   });
+  const [userAvatar, setUserAvatar] = useState<string>("/images/default-avatar.png");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const userInfo = await getUserInformation();
-        setContactInfo({
-          phone: userInfo.phone || "",
-          address: userInfo.address || ""
-        });
-      } catch (error) {
-        console.error('Failed to fetch user information:', error);
-      }
-    };
+    // Lấy avatar từ localStorage
+    const avatarUrl = localStorage.getItem('avatarUrl');
+    const avatarExpiry = localStorage.getItem('avatarExpiry');
+    const contactInfoStr = localStorage.getItem('contactInfo');
+    const contactInfoExpiry = localStorage.getItem('contactInfoExpiry');
+    
+    // Kiểm tra và sử dụng avatar từ cache
+    if (avatarUrl && avatarExpiry && new Date().getTime() < parseInt(avatarExpiry)) {
+      setUserAvatar(avatarUrl);
+    }
 
-    fetchUserInfo();
+    // Kiểm tra và sử dụng contact info từ cache
+    if (contactInfoStr && contactInfoExpiry && new Date().getTime() < parseInt(contactInfoExpiry)) {
+      setContactInfo(JSON.parse(contactInfoStr));
+    } else {
+      // Nếu không có cache hoặc đã hết hạn thì mới gọi API
+      fetchUserInfo();
+    }
   }, []);
+
+  const fetchUserInfo = async () => {
+    try {
+      const userInfo = await getUserInformation();
+      const newContactInfo = {
+        phone: userInfo.phone || "",
+        address: userInfo.address || ""
+      };
+      
+      // Lưu vào localStorage với thời hạn 24h
+      const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+      localStorage.setItem('contactInfo', JSON.stringify(newContactInfo));
+      localStorage.setItem('contactInfoExpiry', expiry.toString());
+      
+      setContactInfo(newContactInfo);
+    } catch (error) {
+      console.error('Failed to fetch user information:', error);
+    }
+  };
 
   const user = {
     name: "John Doe",
@@ -76,11 +103,46 @@ const Profile = () => {
   const handleSave = async () => {
     try {
       await updateUserContact(contactInfo.phone, contactInfo.address);
+      
+      // Cập nhật localStorage sau khi lưu thành công
+      const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+      localStorage.setItem('contactInfo', JSON.stringify(contactInfo));
+      localStorage.setItem('contactInfoExpiry', expiry.toString());
+      
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to save contact information:', error);
-      // Có thể thêm thông báo lỗi cho người dùng ở đây
     }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const response = await uploadAvatar(file);
+        // Giả sử response trả về đường dẫn avatar mới
+        const { avatarPath } = await getUserPaths(); // Lấy đường dẫn mới
+        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+        
+        localStorage.setItem('avatarUrl', avatarPath);
+        localStorage.setItem('avatarExpiry', expiry.toString());
+        setUserAvatar(avatarPath);
+        
+        setShowAvatarModal(false); // Đóng modal sau khi upload thành công
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+        // Có thể thêm thông báo lỗi cho người dùng ở đây
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('avatarUrl');
+    localStorage.removeItem('avatarExpiry');
+    localStorage.removeItem('contactInfo');
+    localStorage.removeItem('contactInfoExpiry');
+    navigate('/logout');
   };
 
   return (
@@ -128,7 +190,7 @@ const Profile = () => {
             <div className="absolute -bottom-20 left-8">
               <div className="relative group">
                 <img
-                  src={user.avatar}
+                  src={userAvatar}
                   alt="Profile"
                   className="w-32 h-32 rounded-full border-4 border-white cursor-pointer"
                   onClick={() => setShowAvatarModal(true)}
@@ -152,12 +214,7 @@ const Profile = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log('Upload file:', file);
-                    }
-                  }}
+                  onChange={handleAvatarUpload}
                 />
               </div>
 
@@ -174,7 +231,7 @@ const Profile = () => {
                     </button>
 
                     <img
-                      src={user.avatar}
+                      src={userAvatar}
                       alt="Profile"
                       className="w-full h-auto"
                     />

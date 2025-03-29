@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, MessageCircle, Bell, Search } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getUserPaths } from '../../api/userApi';
+import React from "react";
 
 interface NavbarProps {
   user?: {
@@ -17,41 +19,54 @@ const Navbar = ({ user }: NavbarProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const username = sessionStorage.getItem('username');
-    const avatarUrl = sessionStorage.getItem('avatarUrl');
-    
+    const username = localStorage.getItem('username');
     if (username) {
       setSessionUser(username);
-      if (avatarUrl) {
-        setUserAvatar(avatarUrl);
-      } else {
-        fetchUserAvatar(username);
-      }
     }
   }, []);
 
-  const fetchUserAvatar = async (username: string) => {
+  useEffect(() => {
+    if (sessionUser) {
+      const avatarUrl = localStorage.getItem('avatarUrl');
+      const avatarExpiry = localStorage.getItem('avatarExpiry');
+      
+      if (avatarUrl && avatarExpiry && new Date().getTime() < parseInt(avatarExpiry)) {
+        console.log('Using cached avatar once');
+        setUserAvatar(avatarUrl);
+      } else {
+        console.log('Fetching new avatar once');
+        fetchUserAvatar(sessionUser);
+      }
+    }
+  }, [sessionUser]);
+
+  const fetchUserAvatar = React.useCallback(async (username: string) => {
     try {
-      const response = await fetch(`/api/users/${username}/profile`);
-      const data = await response.json();
-      const avatarUrl = data.avatarUrl;
-      sessionStorage.setItem('avatarUrl', avatarUrl);
-      setUserAvatar(avatarUrl);
+      console.log('Calling API to get avatar path...');
+      const { avatarPath } = await getUserPaths();
+      
+      const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+      localStorage.setItem('avatarUrl', avatarPath);
+      localStorage.setItem('avatarExpiry', expiry.toString());
+      setUserAvatar(avatarPath);
     } catch (error) {
       console.error('Error fetching user avatar:', error);
       setUserAvatar('/images/default-avatar.png');
     }
-  };
+  }, []);
 
-  // Use sessionUser if available, otherwise fallback to props user
-  const displayUser = sessionUser ? { 
-    name: sessionUser, 
-    avatar: userAvatar || '/images/default-avatar.png' 
-  } : user;
+  const displayUser = React.useMemo(() => {
+    return sessionUser ? { 
+      name: sessionUser, 
+      avatar: userAvatar || '/images/default-avatar.png' 
+    } : user;
+  }, [sessionUser, userAvatar, user]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('username');
-    sessionStorage.removeItem('avatarUrl');
+    console.log('Clearing avatar cache...');
+    localStorage.removeItem('username');
+    localStorage.removeItem('avatarUrl');
+    localStorage.removeItem('avatarExpiry');
     navigate('/logout');
   };
 
