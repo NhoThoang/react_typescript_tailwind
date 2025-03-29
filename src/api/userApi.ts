@@ -134,14 +134,13 @@ export const updateUserContact = async (phone: string, address: string) => {
 
 export const uploadAvatar = async (file: File) => {
   try {
-    const username = localStorage.getItem('username') || sessionStorage.getItem('username');
-    
+    const username = localStorage.getItem('username');
     if (!username) {
       throw new Error('Username not found in session');
     }
 
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('file', file);
     formData.append('username', username);
 
     const response = await axios.post(`${API_URL}/upload_avatar`, formData, {
@@ -150,12 +149,41 @@ export const uploadAvatar = async (file: File) => {
       },
       withCredentials: true
     });
-    
+
     return response.data;
   } catch (error: any) {
     console.error('Error uploading avatar:', error);
     throw {
       message: error.response?.data?.message || 'Failed to upload avatar',
+      status: error.response?.status,
+      details: error.response?.data
+    };
+  }
+};
+
+export const uploadBackground = async (file: File) => {
+  try {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      throw new Error('Username not found in session');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('username', username);
+
+    const response = await axios.post(`${API_URL}/upload_background`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      withCredentials: true
+    });
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error uploading background:', error);
+    throw {
+      message: error.response?.data?.message || 'Failed to upload background',
       status: error.response?.status,
       details: error.response?.data
     };

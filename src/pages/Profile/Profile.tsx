@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Sidebar from '../../components/Navbar/Sidebar';
-import { getUserInformation, updateUserContact, uploadAvatar, getUserPaths } from '../../api/userApi';
-import { useNavigate } from 'react-router-dom';
+import { getUserInformation, updateUserContact, uploadAvatar, uploadBackground, getUserPaths } from '../../api/userApi';
 
 const Profile = () => {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -12,54 +11,85 @@ const Profile = () => {
     address: ""
   });
   const [userAvatar, setUserAvatar] = useState<string>("/images/default-avatar.png");
-  const navigate = useNavigate();
+  const [userBackground, setUserBackground] = useState<string>("/images/default-background.png");
 
   useEffect(() => {
-    // Lấy avatar từ localStorage
+    // Kiểm tra cache
     const avatarUrl = localStorage.getItem('avatarUrl');
     const avatarExpiry = localStorage.getItem('avatarExpiry');
-    const contactInfoStr = localStorage.getItem('contactInfo');
-    const contactInfoExpiry = localStorage.getItem('contactInfoExpiry');
+    const backgroundUrl = localStorage.getItem('backgroundUrl');
+    const backgroundExpiry = localStorage.getItem('backgroundExpiry');
+    const cachedContact = localStorage.getItem('contactInfo');
+    const contactExpiry = localStorage.getItem('contactExpiry');
     
-    // Kiểm tra và sử dụng avatar từ cache
-    if (avatarUrl && avatarExpiry && new Date().getTime() < parseInt(avatarExpiry)) {
+    // Kiểm tra xem tất cả cache có còn hạn không
+    const isAvatarValid = avatarUrl && avatarExpiry && new Date().getTime() < parseInt(avatarExpiry);
+    const isBackgroundValid = backgroundUrl && backgroundExpiry && new Date().getTime() < parseInt(backgroundExpiry);
+    const isContactValid = cachedContact && contactExpiry && new Date().getTime() < parseInt(contactExpiry);
+
+    // Nếu cache còn hạn thì set state từ cache
+    if (isAvatarValid) {
       setUserAvatar(avatarUrl);
     }
 
-    // Kiểm tra và sử dụng contact info từ cache
-    if (contactInfoStr && contactInfoExpiry && new Date().getTime() < parseInt(contactInfoExpiry)) {
-      setContactInfo(JSON.parse(contactInfoStr));
-    } else {
-      // Nếu không có cache hoặc đã hết hạn thì mới gọi API
-      fetchUserInfo();
+    if (isBackgroundValid) {
+      setUserBackground(backgroundUrl);
     }
+
+    if (isContactValid) {
+      setContactInfo(JSON.parse(cachedContact));
+    }
+
+    // Chỉ gọi API khi có cache hết hạn
+    const fetchUserInfo = async () => {
+      try {
+        // Chỉ gọi getUserInformation khi contact cache hết hạn
+        if (!isContactValid) {
+          const userInfo = await getUserInformation();
+          const contactData = {
+            phone: userInfo.phone || "",
+            address: userInfo.address || ""
+          };
+          
+          const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+          localStorage.setItem('contactInfo', JSON.stringify(contactData));
+          localStorage.setItem('contactExpiry', expiry.toString());
+          
+          setContactInfo(contactData);
+        }
+
+        // Chỉ gọi getUserPaths khi avatar hoặc background cache hết hạn
+        if (!isAvatarValid || !isBackgroundValid) {
+          const { avatarPath, backgroundPath } = await getUserPaths();
+          
+          if (!isAvatarValid) {
+            const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+            localStorage.setItem('avatarUrl', avatarPath);
+            localStorage.setItem('avatarExpiry', expiry.toString());
+            setUserAvatar(avatarPath);
+          }
+
+          if (!isBackgroundValid) {
+            const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+            localStorage.setItem('backgroundUrl', backgroundPath);
+            localStorage.setItem('backgroundExpiry', expiry.toString());
+            setUserBackground(backgroundPath);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user information:', error);
+      }
+    };
+
+    fetchUserInfo();
   }, []);
 
-  const fetchUserInfo = async () => {
-    try {
-      const userInfo = await getUserInformation();
-      const newContactInfo = {
-        phone: userInfo.phone || "",
-        address: userInfo.address || ""
-      };
-      
-      // Lưu vào localStorage với thời hạn 24h
-      const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
-      localStorage.setItem('contactInfo', JSON.stringify(newContactInfo));
-      localStorage.setItem('contactInfoExpiry', expiry.toString());
-      
-      setContactInfo(newContactInfo);
-    } catch (error) {
-      console.error('Failed to fetch user information:', error);
-    }
-  };
-
   const user = {
-    name: "John Doe",
+    name: localStorage.getItem('username') || "John Doe",
     title: "Senior Frontend Developer",
-    location: "Hà Nội, Việt Nam",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    cover: "https://images.unsplash.com/photo-1707343843437-caacff5cfa74",
+    location: JSON.parse(localStorage.getItem('contactInfo') || '{"address":""}').address || "Hà Nội, Việt Nam",
+    avatar: userAvatar,
+    cover: userBackground,
     stats: {
       followers: "8.5K",
       following: "2.3K",
@@ -104,10 +134,10 @@ const Profile = () => {
     try {
       await updateUserContact(contactInfo.phone, contactInfo.address);
       
-      // Cập nhật localStorage sau khi lưu thành công
+      // Cập nhật cache sau khi lưu thành công
       const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
       localStorage.setItem('contactInfo', JSON.stringify(contactInfo));
-      localStorage.setItem('contactInfoExpiry', expiry.toString());
+      localStorage.setItem('contactExpiry', expiry.toString());
       
       setIsEditing(false);
     } catch (error) {
@@ -119,30 +149,55 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        const response = await uploadAvatar(file);
-        // Giả sử response trả về đường dẫn avatar mới
-        const { avatarPath } = await getUserPaths(); // Lấy đường dẫn mới
-        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+        await uploadAvatar(file);
+        const { avatarPath } = await getUserPaths();
         
+        // Lưu URL gốc vào cache, không thêm timestamp
         localStorage.setItem('avatarUrl', avatarPath);
-        localStorage.setItem('avatarExpiry', expiry.toString());
-        setUserAvatar(avatarPath);
+        localStorage.setItem('avatarExpiry', (new Date().getTime() + (24 * 60 * 60 * 1000)).toString());
         
-        setShowAvatarModal(false); // Đóng modal sau khi upload thành công
+        // Set state với URL có timestamp để force browser reload image
+        setUserAvatar(`${avatarPath}?t=${new Date().getTime()}`);
+        setShowAvatarModal(false);
       } catch (error) {
         console.error('Failed to upload avatar:', error);
-        // Có thể thêm thông báo lỗi cho người dùng ở đây
       }
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('avatarUrl');
-    localStorage.removeItem('avatarExpiry');
-    localStorage.removeItem('contactInfo');
-    localStorage.removeItem('contactInfoExpiry');
-    navigate('/logout');
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        console.log('Starting background upload...');
+        await uploadBackground(file);
+        console.log('Upload completed');
+        
+        // Đợi 1 giây để đảm bảo server đã xử lý xong
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Lấy đường dẫn mới từ API
+        const { backgroundPath } = await getUserPaths();
+        console.log('New background path:', backgroundPath);
+        
+        // Thêm timestamp để tránh cache
+        const newBackgroundUrl = `${backgroundPath}?t=${new Date().getTime()}`;
+        
+        // Lưu vào localStorage với expiry time
+        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+        localStorage.setItem('backgroundUrl', newBackgroundUrl);
+        localStorage.setItem('backgroundExpiry', expiry.toString());
+        
+        // Cập nhật state
+        setUserBackground(newBackgroundUrl);
+        
+        // Force reload trang để cập nhật UI
+        window.location.reload();
+        
+      } catch (error) {
+        console.error('Failed to upload background:', error);
+      }
+    }
   };
 
   return (
@@ -154,8 +209,8 @@ const Profile = () => {
           <div className="relative group">
             <div className="h-64 w-full relative">
               <img 
-                src={user.cover} 
-                alt="Cover" 
+                src={userBackground}
+                alt="Cover"
                 className="w-full h-full object-cover"
               />
               
@@ -170,19 +225,14 @@ const Profile = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Chỉnh sửa ảnh bìa
+                  Thay đổi ảnh bìa
                 </button>
                 <input
                   id="cover-upload"
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log('Upload cover:', file);
-                    }
-                  }}
+                  onChange={handleBackgroundUpload}
                 />
               </div>
             </div>

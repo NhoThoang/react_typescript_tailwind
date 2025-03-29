@@ -70,6 +70,62 @@ const Navbar = ({ user }: NavbarProps) => {
     navigate('/logout');
   };
 
+  useEffect(() => {
+    const handleAvatarUpdate = (event: CustomEvent) => {
+      const { avatarPath } = event.detail;
+      setUserAvatar(avatarPath);
+      
+      // Force rerender
+      setUserAvatar(prev => {
+        if (prev === avatarPath) {
+          return avatarPath + '?t=' + new Date().getTime();
+        }
+        return avatarPath;
+      });
+    };
+
+    window.addEventListener('avatarUpdated', handleAvatarUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('avatarUpdated', handleAvatarUpdate as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Hàm để fetch lại avatar
+    const refreshAvatar = async () => {
+      if (sessionUser) {
+        try {
+          // Clear cache
+          localStorage.removeItem('avatarUrl');
+          localStorage.removeItem('avatarExpiry');
+          
+          // Fetch lại avatar từ server
+          const { avatarPath } = await getUserPaths();
+          
+          // Cập nhật localStorage và state
+          const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
+          localStorage.setItem('avatarUrl', avatarPath);
+          localStorage.setItem('avatarExpiry', expiry.toString());
+          setUserAvatar(avatarPath);
+        } catch (error) {
+          console.error('Error refreshing avatar:', error);
+        }
+      }
+    };
+
+    // Lắng nghe sự kiện storage
+    const handleStorageChange = () => {
+      refreshAvatar();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [sessionUser]);
+
   return (
     <nav className="bg-white/5 text-gray-800 relative z-50">
       <div className="px-6 py-3 flex justify-between items-center backdrop-blur-sm">

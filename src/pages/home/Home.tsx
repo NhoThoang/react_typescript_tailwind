@@ -114,7 +114,7 @@ const HomePage = () => {
                   <img 
                     src={slide.image} 
                     alt={slide.title} 
-                    className="w-full h-[280px] object-fill"
+                    className="w-full h-[280px] object-cover"
                     style={{ objectPosition: 'center' }}
                     onError={(e) => {
                       console.error('Slider image failed to load:', e.currentTarget.src);
