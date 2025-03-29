@@ -5,7 +5,7 @@ markdown
 ![dashboard](./Picture/dasboard.png)
 
 
-![dashboard](./Picture/Home.png)
+![dashboard](./Picture/Home1.png)
 
 
 ![dashboard](./Picture/profile.png)
