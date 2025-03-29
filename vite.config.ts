@@ -1,7 +1,11 @@
 import { defineConfig } from 'vite'; // Import hàm defineConfig từ Vite để cấu hình dự án
 import react from '@vitejs/plugin-react'; // Import plugin hỗ trợ React cho Vite
 import tailwindcss from '@tailwindcss/vite'; // Import plugin hỗ trợ Tailwind CSS cho Vite
-import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   plugins: [
@@ -23,7 +27,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': resolve(__dirname, './src')
     }
   }
 });
